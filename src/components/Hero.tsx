@@ -1,8 +1,10 @@
-
 import React from 'react';
 import { Button } from '@/components/ui/button';
+import { useNavigate } from 'react-router-dom';
 
 const Hero: React.FC = () => {
+  const navigate = useNavigate();
+  
   const scrollToForm = () => {
     document.getElementById('demo-request')?.scrollIntoView({ behavior: 'smooth' });
   };

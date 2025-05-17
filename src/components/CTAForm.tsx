@@ -1,5 +1,5 @@
-
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -14,6 +14,7 @@ const API_BASE_URL = 'https://api.skillsync.dev';
 
 const DemoForm: React.FC = () => {
   const { toast } = useToast();
+  const navigate = useNavigate();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [resumeFile, setResumeFile] = useState<File | null>(null);
   
@@ -39,49 +40,19 @@ const DemoForm: React.FC = () => {
     setIsSubmitting(true);
     
     try {
-      // Example of how to upload a resume
-      if (resumeFile) {
-        const formData = new FormData();
-        formData.append('resume', resumeFile);
-        
-        const response = await fetch(`${API_BASE_URL}/api/candidates/upload-resume/`, {
-          method: 'POST',
-          body: formData,
-        });
-        
-        if (response.ok) {
-          const result = await response.json();
-          const candidateId = result.candidate_id;
-          
-          // Example: If you want to generate a summary based on the job description
-          if (data.jobDescription) {
-            await fetch(`${API_BASE_URL}/api/candidates/${candidateId}/summary/`, {
-              method: 'POST',
-              headers: {
-                'Content-Type': 'application/json',
-              },
-              body: JSON.stringify({ job_description: data.jobDescription }),
-            });
-          }
-          
-          toast({
-            title: "Demo Request Received!",
-            description: "We'll be in touch soon with your personalized demo.",
-          });
-        } else {
-          toast({
-            title: "Error",
-            description: "There was a problem processing your request.",
-            variant: "destructive"
-          });
-        }
-      } else {
-        // If no resume was uploaded, just show a success message
-        toast({
-          title: "Demo Request Received!",
-          description: "We'll be in touch soon with your personalized demo.",
-        });
-      }
+      // Example of how a real implementation would upload data
+      // In this demo version, we'll simulate success and navigate to the demo page
+      
+      toast({
+        title: "Demo Request Received!",
+        description: "Redirecting you to our interactive demo.",
+      });
+      
+      // Wait a moment before redirecting to allow the toast to be seen
+      setTimeout(() => {
+        navigate('/demo', { state: { fromSubmission: true } });
+      }, 1500);
+      
     } catch (error) {
       console.error("Error submitting form:", error);
       toast({
@@ -89,10 +60,7 @@ const DemoForm: React.FC = () => {
         description: "There was a problem connecting to our servers.",
         variant: "destructive"
       });
-    } finally {
       setIsSubmitting(false);
-      form.reset();
-      setResumeFile(null);
     }
   };
 
