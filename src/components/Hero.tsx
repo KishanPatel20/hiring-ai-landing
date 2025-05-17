@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button';
 
 const Hero: React.FC = () => {
   const scrollToForm = () => {
-    document.getElementById('beta-signup')?.scrollIntoView({ behavior: 'smooth' });
+    document.getElementById('demo-request')?.scrollIntoView({ behavior: 'smooth' });
   };
 
   return (
@@ -22,7 +22,7 @@ const Hero: React.FC = () => {
               onClick={scrollToForm}
               className="bg-skillsync-purple hover:bg-skillsync-purple/90 text-white text-lg py-6 px-8"
             >
-              Apply for Beta Access
+              Request a Demo
             </Button>
             <Button 
               variant="outline" 

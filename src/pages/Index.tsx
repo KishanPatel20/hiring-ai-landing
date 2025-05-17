@@ -7,7 +7,7 @@ import BenefitsSection from '@/components/BenefitsSection';
 import HowItWorks from '@/components/HowItWorks';
 import Features from '@/components/Features';
 import TargetAudience from '@/components/TargetAudience';
-import CTAForm from '@/components/CTAForm';
+import DemoForm from '@/components/CTAForm';
 import Footer from '@/components/Footer';
 import { initScrollAnimation } from '@/utils/scrollAnimation';
 
@@ -50,7 +50,7 @@ const Index: React.FC = () => {
         </div>
         
         <div className="animate-on-scroll">
-          <CTAForm />
+          <DemoForm />
         </div>
       </main>
       

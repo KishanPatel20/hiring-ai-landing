@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button';
 
 const Header: React.FC = () => {
   const scrollToForm = () => {
-    document.getElementById('beta-signup')?.scrollIntoView({ behavior: 'smooth' });
+    document.getElementById('demo-request')?.scrollIntoView({ behavior: 'smooth' });
   };
 
   return (
@@ -17,7 +17,7 @@ const Header: React.FC = () => {
         </div>
         <nav>
           <Button onClick={scrollToForm} className="bg-skillsync-purple hover:bg-skillsync-purple/90 text-white">
-            Join Beta
+            Request Demo
           </Button>
         </nav>
       </div>

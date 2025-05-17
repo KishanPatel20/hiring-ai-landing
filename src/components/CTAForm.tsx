@@ -6,157 +6,255 @@ import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
 import { useToast } from "@/hooks/use-toast";
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
+import { useForm } from "react-hook-form";
 
-const CTAForm: React.FC = () => {
+// Base API URL - in a production app, this would come from environment variables
+const API_BASE_URL = 'https://api.skillsync.dev';
+
+const DemoForm: React.FC = () => {
   const { toast } = useToast();
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [formData, setFormData] = useState({
-    name: '',
-    email: '',
-    company: '',
-    role: '',
-    companySize: '',
-    challenge: ''
+  const [resumeFile, setResumeFile] = useState<File | null>(null);
+  
+  const form = useForm({
+    defaultValues: {
+      name: '',
+      email: '',
+      company: '',
+      role: '',
+      companySize: '',
+      challenge: '',
+      jobDescription: ''
+    }
   });
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-    const { name, value } = e.target;
-    setFormData(prev => ({ ...prev, [name]: value }));
+  const handleResumeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files[0]) {
+      setResumeFile(e.target.files[0]);
+    }
   };
 
-  const handleSelectChange = (name: string, value: string) => {
-    setFormData(prev => ({ ...prev, [name]: value }));
-  };
-
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleSubmit = async (data: any) => {
     setIsSubmitting(true);
     
-    // Simulating API call
-    setTimeout(() => {
-      setIsSubmitting(false);
+    try {
+      // Example of how to upload a resume
+      if (resumeFile) {
+        const formData = new FormData();
+        formData.append('resume', resumeFile);
+        
+        const response = await fetch(`${API_BASE_URL}/api/candidates/upload-resume/`, {
+          method: 'POST',
+          body: formData,
+        });
+        
+        if (response.ok) {
+          const result = await response.json();
+          const candidateId = result.candidate_id;
+          
+          // Example: If you want to generate a summary based on the job description
+          if (data.jobDescription) {
+            await fetch(`${API_BASE_URL}/api/candidates/${candidateId}/summary/`, {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+              },
+              body: JSON.stringify({ job_description: data.jobDescription }),
+            });
+          }
+          
+          toast({
+            title: "Demo Request Received!",
+            description: "We'll be in touch soon with your personalized demo.",
+          });
+        } else {
+          toast({
+            title: "Error",
+            description: "There was a problem processing your request.",
+            variant: "destructive"
+          });
+        }
+      } else {
+        // If no resume was uploaded, just show a success message
+        toast({
+          title: "Demo Request Received!",
+          description: "We'll be in touch soon with your personalized demo.",
+        });
+      }
+    } catch (error) {
+      console.error("Error submitting form:", error);
       toast({
-        title: "Application Received!",
-        description: "Thanks for applying to the SkillSync beta program. We'll be in touch soon!",
+        title: "Error",
+        description: "There was a problem connecting to our servers.",
+        variant: "destructive"
       });
-      setFormData({
-        name: '',
-        email: '',
-        company: '',
-        role: '',
-        companySize: '',
-        challenge: ''
-      });
-    }, 1500);
+    } finally {
+      setIsSubmitting(false);
+      form.reset();
+      setResumeFile(null);
+    }
   };
 
   return (
-    <section id="beta-signup" className="py-16 bg-white">
+    <section id="demo-request" className="py-16 bg-white">
       <div className="container mx-auto px-4">
         <div className="max-w-3xl mx-auto">
           <h2 className="text-3xl md:text-4xl font-bold text-center mb-4">Ready to Transform Your Hiring?</h2>
           <p className="text-xl text-center mb-8 text-skillsync-darkgray/80">
-            Apply for beta access and be among the first to experience SkillSync's AI-powered hiring revolution.
+            Request a demo and see how SkillSync's AI-powered hiring revolution can help your company.
           </p>
           
           <div className="bg-white p-8 rounded-xl shadow-lg border border-gray-100">
-            <form onSubmit={handleSubmit} className="space-y-6">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div className="space-y-2">
-                  <Label htmlFor="name">Your Name</Label>
-                  <Input 
-                    id="name"
+            <Form {...form}>
+              <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <FormField
+                    control={form.control}
                     name="name"
-                    value={formData.name}
-                    onChange={handleChange}
-                    placeholder="John Smith"
-                    required
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Your Name</FormLabel>
+                        <FormControl>
+                          <Input placeholder="John Smith" required {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
                   />
-                </div>
-                
-                <div className="space-y-2">
-                  <Label htmlFor="email">Work Email</Label>
-                  <Input 
-                    id="email"
+                  
+                  <FormField
+                    control={form.control}
                     name="email"
-                    type="email"
-                    value={formData.email}
-                    onChange={handleChange}
-                    placeholder="john@company.com"
-                    required
-                  />
-                </div>
-              </div>
-              
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div className="space-y-2">
-                  <Label htmlFor="company">Company Name</Label>
-                  <Input 
-                    id="company"
-                    name="company"
-                    value={formData.company}
-                    onChange={handleChange}
-                    placeholder="Acme Technologies"
-                    required
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Work Email</FormLabel>
+                        <FormControl>
+                          <Input type="email" placeholder="john@company.com" required {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
                   />
                 </div>
                 
-                <div className="space-y-2">
-                  <Label htmlFor="role">Your Role</Label>
-                  <Input 
-                    id="role"
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <FormField
+                    control={form.control}
+                    name="company"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Company Name</FormLabel>
+                        <FormControl>
+                          <Input placeholder="Acme Technologies" required {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  
+                  <FormField
+                    control={form.control}
                     name="role"
-                    value={formData.role}
-                    onChange={handleChange}
-                    placeholder="HR Manager, CTO, etc."
-                    required
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Your Role</FormLabel>
+                        <FormControl>
+                          <Input placeholder="HR Manager, CTO, etc." required {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
                   />
                 </div>
-              </div>
-              
-              <div className="space-y-2">
-                <Label htmlFor="companySize">Company Size</Label>
-                <Select 
-                  value={formData.companySize} 
-                  onValueChange={(value) => handleSelectChange('companySize', value)}
-                >
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select company size" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="1-10">1-10 employees</SelectItem>
-                    <SelectItem value="11-50">11-50 employees</SelectItem>
-                    <SelectItem value="51-200">51-200 employees</SelectItem>
-                    <SelectItem value="201-500">201-500 employees</SelectItem>
-                    <SelectItem value="500+">500+ employees</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-              
-              <div className="space-y-2">
-                <Label htmlFor="challenge">What's your biggest hiring challenge?</Label>
-                <Textarea 
-                  id="challenge"
-                  name="challenge"
-                  value={formData.challenge}
-                  onChange={handleChange}
-                  placeholder="Tell us about the challenges you face when hiring IT talent..."
-                  rows={3}
+                
+                <FormField
+                  control={form.control}
+                  name="companySize"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Company Size</FormLabel>
+                      <Select onValueChange={field.onChange} defaultValue={field.value}>
+                        <FormControl>
+                          <SelectTrigger>
+                            <SelectValue placeholder="Select company size" />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          <SelectItem value="1-10">1-10 employees</SelectItem>
+                          <SelectItem value="11-50">11-50 employees</SelectItem>
+                          <SelectItem value="51-200">51-200 employees</SelectItem>
+                          <SelectItem value="201-500">201-500 employees</SelectItem>
+                          <SelectItem value="500+">500+ employees</SelectItem>
+                        </SelectContent>
+                      </Select>
+                      <FormMessage />
+                    </FormItem>
+                  )}
                 />
-              </div>
-              
-              <Button 
-                type="submit" 
-                className="w-full bg-skillsync-purple hover:bg-skillsync-purple/90 text-white py-6"
-                disabled={isSubmitting}
-              >
-                {isSubmitting ? 'Submitting...' : 'Apply for Beta Access'}
-              </Button>
-              
-              <p className="text-sm text-center text-skillsync-darkgray/60">
-                By submitting, you agree to our Privacy Policy and Terms of Service.
-              </p>
-            </form>
+                
+                <FormField
+                  control={form.control}
+                  name="challenge"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>What's your biggest hiring challenge?</FormLabel>
+                      <FormControl>
+                        <Textarea 
+                          placeholder="Tell us about the challenges you face when hiring IT talent..."
+                          rows={3}
+                          {...field}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="jobDescription"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Sample Job Description (Optional)</FormLabel>
+                      <FormControl>
+                        <Textarea 
+                          placeholder="Paste a sample job description to see how SkillSync can help..."
+                          rows={4}
+                          {...field}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <div className="space-y-2">
+                  <Label htmlFor="resume">Upload Sample Resume (Optional)</Label>
+                  <Input 
+                    id="resume"
+                    type="file"
+                    accept=".pdf,.doc,.docx"
+                    onChange={handleResumeChange}
+                  />
+                  <p className="text-xs text-skillsync-darkgray/60">
+                    Upload a sample resume to see how SkillSync processes candidate information.
+                  </p>
+                </div>
+                
+                <Button 
+                  type="submit" 
+                  className="w-full bg-skillsync-purple hover:bg-skillsync-purple/90 text-white py-6"
+                  disabled={isSubmitting}
+                >
+                  {isSubmitting ? 'Submitting...' : 'Request Your Demo'}
+                </Button>
+                
+                <p className="text-sm text-center text-skillsync-darkgray/60">
+                  By submitting, you agree to our Privacy Policy and Terms of Service.
+                </p>
+              </form>
+            </Form>
           </div>
         </div>
       </div>
@@ -164,4 +262,4 @@ const CTAForm: React.FC = () => {
   );
 };
 
-export default CTAForm;
+export default DemoForm;
