@@ -1,12 +1,60 @@
-// Update this page (the content is just a fallback if you fail to update the page)
 
-const Index = () => {
+import React, { useEffect } from 'react';
+import Header from '@/components/Header';
+import Hero from '@/components/Hero';
+import ProblemSection from '@/components/ProblemSection';
+import BenefitsSection from '@/components/BenefitsSection';
+import HowItWorks from '@/components/HowItWorks';
+import Features from '@/components/Features';
+import TargetAudience from '@/components/TargetAudience';
+import CTAForm from '@/components/CTAForm';
+import Footer from '@/components/Footer';
+import { initScrollAnimation } from '@/utils/scrollAnimation';
+
+const Index: React.FC = () => {
+  useEffect(() => {
+    // Initialize scroll animations
+    const cleanupScrollAnimation = initScrollAnimation();
+    
+    // Cleanup on component unmount
+    return () => {
+      cleanupScrollAnimation();
+    };
+  }, []);
+
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-100">
-      <div className="text-center">
-        <h1 className="text-4xl font-bold mb-4">Welcome to Your Blank App</h1>
-        <p className="text-xl text-gray-600">Start building your amazing project here!</p>
-      </div>
+    <div className="min-h-screen flex flex-col">
+      <Header />
+      
+      <main className="flex-grow">
+        <Hero />
+        
+        <div className="animate-on-scroll">
+          <ProblemSection />
+        </div>
+        
+        <div className="animate-on-scroll">
+          <BenefitsSection />
+        </div>
+        
+        <div className="animate-on-scroll">
+          <HowItWorks />
+        </div>
+        
+        <div className="animate-on-scroll">
+          <Features />
+        </div>
+        
+        <div className="animate-on-scroll">
+          <TargetAudience />
+        </div>
+        
+        <div className="animate-on-scroll">
+          <CTAForm />
+        </div>
+      </main>
+      
+      <Footer />
     </div>
   );
 };
