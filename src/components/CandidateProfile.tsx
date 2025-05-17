@@ -17,7 +17,7 @@ const CandidateProfile: React.FC<CandidateProfileProps> = ({ candidate, onBack }
 
   const handleDownloadResume = async () => {
     try {
-      const response = await fetch(`https://api.skillsync.dev/api/candidates/${candidate.id}/resume/`);
+      const response = await fetch(`https://api.skillsync.dev/skillsync/candidates/${candidate.id}/resume/`);
       
       if (!response.ok) {
         throw new Error('Failed to download resume');

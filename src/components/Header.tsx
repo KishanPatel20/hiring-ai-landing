@@ -1,6 +1,8 @@
+
 import React from 'react';
 import { Button } from '@/components/ui/button';
 import { useNavigate } from 'react-router-dom';
+import { Upload } from 'lucide-react';
 
 const Header: React.FC = () => {
   const navigate = useNavigate();
@@ -31,7 +33,15 @@ const Header: React.FC = () => {
             Skill<span className="text-skillsync-purple">Sync</span>
           </span>
         </div>
-        <nav>
+        <nav className="flex items-center gap-4">
+          <Button 
+            variant="outline" 
+            className="flex items-center gap-2 border-skillsync-purple text-skillsync-purple hover:bg-skillsync-purple/10"
+            onClick={() => navigate('/upload-resume')}
+          >
+            <Upload size={18} />
+            <span className="hidden sm:inline">Upload Resume</span>
+          </Button>
           <Button onClick={handleRequestDemo} className="bg-skillsync-purple hover:bg-skillsync-purple/90 text-white">
             Request Demo
           </Button>

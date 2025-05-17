@@ -42,7 +42,7 @@ const Demo: React.FC = () => {
     setLoading(true);
     
     try {
-      const response = await fetch('https://api.skillsync.dev/api/candidates/search/', {
+      const response = await fetch('https://api.skillsync.dev/skillsync/candidates/search/', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -55,7 +55,21 @@ const Demo: React.FC = () => {
       }
       
       const data = await response.json();
-      setCandidates(data);
+      
+      // Transform API response to match our Candidate interface
+      const transformedCandidates = data.results.map((candidate: any) => ({
+        id: candidate.candidate_id,
+        name: candidate.name,
+        image: `/placeholder.svg`, // Placeholder image
+        role: candidate.roles && candidate.roles.length > 0 ? candidate.roles[0] : 'Professional',
+        experience: `${candidate.total_experience_years} Years`,
+        skills: [], // Will be populated when viewing full profile
+        education: [],
+        projects: [],
+        experiences: []
+      }));
+      
+      setCandidates(transformedCandidates);
       setSelectedCandidate(null);
     } catch (error) {
       console.error('Error searching candidates:', error);
@@ -69,8 +83,52 @@ const Demo: React.FC = () => {
     }
   };
 
-  const handleSelectCandidate = (candidate: Candidate) => {
-    setSelectedCandidate(candidate);
+  const handleSelectCandidate = async (candidate: Candidate) => {
+    try {
+      setLoading(true);
+      // Fetch full candidate details
+      const response = await fetch(`https://api.skillsync.dev/skillsync/candidates/${candidate.id}/`);
+      
+      if (!response.ok) {
+        throw new Error('Failed to fetch candidate details');
+      }
+      
+      const candidateData = await response.json();
+      
+      // Transform API response to match our Candidate interface
+      const fullCandidate: Candidate = {
+        id: candidateData.id,
+        name: candidateData.name,
+        image: `/placeholder.svg`, // Placeholder image
+        role: candidateData.experiences && candidateData.experiences.length > 0 
+          ? candidateData.experiences[0].role 
+          : candidate.role,
+        experience: candidate.experience,
+        skills: candidateData.skills || [],
+        education: candidateData.education || [],
+        projects: candidateData.projects ? candidateData.projects.map((p: any) => ({
+          name: p.project_name,
+          description: p.description
+        })) : [],
+        experiences: candidateData.experiences ? candidateData.experiences.map((exp: any) => ({
+          company: exp.company,
+          role: exp.role,
+          duration: `${exp.start_date} - ${exp.end_date || 'Present'}`,
+          description: exp.description
+        })) : []
+      };
+      
+      setSelectedCandidate(fullCandidate);
+    } catch (error) {
+      console.error('Error fetching candidate details:', error);
+      toast({
+        title: "Error",
+        description: "Failed to load candidate details. Please try again.",
+        variant: "destructive"
+      });
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleBackToResults = () => {
