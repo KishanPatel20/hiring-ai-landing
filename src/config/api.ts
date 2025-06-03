@@ -14,6 +14,7 @@ export const API_ENDPOINTS = {
   CANDIDATE_RESUME: (id: number) => `/skillsync/candidates/${id}/resume/`,
   CANDIDATE_SEARCH: '/skillsync/candidates/search/',
   CANDIDATE_ANALYSIS: (id: number) => `/skillsync/candidates/${id}/analyze/`,
+  CANDIDATE_STATUS: (id: number) => `/skillsync/candidates/${id}/status/`,
   
   // Resume Upload
   RESUME_UPLOAD: '/skillsync/resume/upload/',
