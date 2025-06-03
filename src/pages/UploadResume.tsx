@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Header from '@/components/Header';
@@ -8,12 +9,16 @@ import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { useToast } from '@/hooks/use-toast';
 import { Upload, FileText } from 'lucide-react';
+import { useAuth } from '@/contexts/AuthContext';
+import { apiCall } from '@/services/apiService';
+import { API_ENDPOINTS } from '@/config/api';
 
 const UploadResume: React.FC = () => {
   const [file, setFile] = useState<File | null>(null);
   const [isUploading, setIsUploading] = useState<boolean>(false);
   const navigate = useNavigate();
   const { toast } = useToast();
+  const { token, isAuthenticated } = useAuth();
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
@@ -37,34 +42,28 @@ const UploadResume: React.FC = () => {
     
     try {
       const formData = new FormData();
-      formData.append('resume', file);
+      formData.append('resume_file', file);
       
-      const response = await fetch('https://api.skillsync.dev/skillsync/candidates/upload/', {
+      const result = await apiCall(API_ENDPOINTS.RESUME_UPLOAD, {
         method: 'POST',
         body: formData,
+        token: isAuthenticated ? token : undefined,
       });
       
-      if (!response.ok) {
-        throw new Error('Upload failed');
-      }
+      toast({
+        title: "Upload Successful",
+        description: result.message || "Resume has been uploaded and processed successfully.",
+      });
       
-      const result = await response.json();
-      
-      if (result.success) {
-        toast({
-          title: "Upload Successful",
-          description: "Resume has been uploaded and processed successfully.",
-        });
-        
-        // Redirect to the candidate's profile or demo page
+      if (isAuthenticated) {
+        navigate('/candidates');
+      } else {
         navigate(`/demo`, { 
           state: { 
             fromSubmission: true,
             candidateId: result.candidate_id 
           } 
         });
-      } else {
-        throw new Error(result.error || 'Unknown error occurred');
       }
     } catch (error) {
       console.error('Error uploading resume:', error);

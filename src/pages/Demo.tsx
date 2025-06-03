@@ -7,6 +7,8 @@ import CandidateSearch from '@/components/CandidateSearch';
 import CandidateList from '@/components/CandidateList';
 import CandidateProfile from '@/components/CandidateProfile';
 import { useToast } from "@/hooks/use-toast";
+import { apiCall } from '@/services/apiService';
+import { API_ENDPOINTS } from '@/config/api';
 
 export interface Candidate {
   id: number;
@@ -29,10 +31,8 @@ const Demo: React.FC = () => {
   const navigate = useNavigate();
   const location = useLocation();
   
-  // Use location state to check if we came from the form submission
   React.useEffect(() => {
     if (!location.state?.fromSubmission) {
-      // If not coming from form submission, redirect back to home
       navigate('/');
     }
   }, [location, navigate]);
@@ -42,28 +42,18 @@ const Demo: React.FC = () => {
     setLoading(true);
     
     try {
-      const response = await fetch('https://api.skillsync.dev/skillsync/candidates/search/', {
+      const data = await apiCall(API_ENDPOINTS.CANDIDATE_SEARCH, {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ query }),
+        body: { query },
       });
       
-      if (!response.ok) {
-        throw new Error('Search failed');
-      }
-      
-      const data = await response.json();
-      
-      // Transform API response to match our Candidate interface
       const transformedCandidates = data.results.map((candidate: any) => ({
         id: candidate.candidate_id,
         name: candidate.name,
-        image: `/placeholder.svg`, // Placeholder image
+        image: `/placeholder.svg`,
         role: candidate.roles && candidate.roles.length > 0 ? candidate.roles[0] : 'Professional',
         experience: `${candidate.total_experience_years} Years`,
-        skills: [], // Will be populated when viewing full profile
+        skills: [],
         education: [],
         projects: [],
         experiences: []
@@ -86,20 +76,12 @@ const Demo: React.FC = () => {
   const handleSelectCandidate = async (candidate: Candidate) => {
     try {
       setLoading(true);
-      // Fetch full candidate details
-      const response = await fetch(`https://api.skillsync.dev/skillsync/candidates/${candidate.id}/`);
+      const candidateData = await apiCall(API_ENDPOINTS.CANDIDATE_DETAIL(candidate.id));
       
-      if (!response.ok) {
-        throw new Error('Failed to fetch candidate details');
-      }
-      
-      const candidateData = await response.json();
-      
-      // Transform API response to match our Candidate interface
       const fullCandidate: Candidate = {
         id: candidateData.id,
         name: candidateData.name,
-        image: `/placeholder.svg`, // Placeholder image
+        image: `/placeholder.svg`,
         role: candidateData.experiences && candidateData.experiences.length > 0 
           ? candidateData.experiences[0].role 
           : candidate.role,

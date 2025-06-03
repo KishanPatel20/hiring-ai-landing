@@ -1,11 +1,11 @@
-
 import React from 'react';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Candidate } from '@/pages/Demo';
 import { useToast } from "@/hooks/use-toast";
-import { FileText, Download } from 'lucide-react';
+import { Download } from 'lucide-react';
+import { buildApiUrl, API_ENDPOINTS } from '@/config/api';
 
 interface CandidateProfileProps {
   candidate: Candidate;
@@ -17,27 +17,18 @@ const CandidateProfile: React.FC<CandidateProfileProps> = ({ candidate, onBack }
 
   const handleDownloadResume = async () => {
     try {
-      const response = await fetch(`https://api.skillsync.dev/skillsync/candidates/${candidate.id}/resume/`);
+      const response = await fetch(buildApiUrl(API_ENDPOINTS.CANDIDATE_RESUME(candidate.id)));
       
       if (!response.ok) {
         throw new Error('Failed to download resume');
       }
       
-      // Create a blob from the PDF Stream
       const blob = await response.blob();
-      
-      // Create a link element
       const link = document.createElement('a');
       link.href = window.URL.createObjectURL(blob);
       link.download = `${candidate.name.replace(/\s+/g, '_')}_Resume.pdf`;
-      
-      // Append to the document
       document.body.appendChild(link);
-      
-      // Start download
       link.click();
-      
-      // Clean up
       document.body.removeChild(link);
       
       toast({

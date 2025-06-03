@@ -1,27 +1,52 @@
 
 import React from 'react';
 import { Button } from '@/components/ui/button';
-import { useNavigate } from 'react-router-dom';
-import { Upload } from 'lucide-react';
+import { useNavigate, useLocation } from 'react-router-dom';
+import { Upload, LogOut, BarChart3 } from 'lucide-react';
+import { useAuth } from '@/contexts/AuthContext';
+import { useToast } from '@/hooks/use-toast';
+import { apiCall } from '@/services/apiService';
+import { API_ENDPOINTS } from '@/config/api';
 
 const Header: React.FC = () => {
   const navigate = useNavigate();
+  const location = useLocation();
+  const { isAuthenticated, logout, token } = useAuth();
+  const { toast } = useToast();
   
   const scrollToForm = () => {
     document.getElementById('demo-request')?.scrollIntoView({ behavior: 'smooth' });
   };
   
   const handleRequestDemo = () => {
-    // If we're already on the home page, scroll to form
     if (window.location.pathname === '/') {
       scrollToForm();
     } else {
-      // Otherwise navigate to home page
       navigate('/');
-      // We need to wait for the navigation to complete before scrolling
       setTimeout(() => {
         document.getElementById('demo-request')?.scrollIntoView({ behavior: 'smooth' });
       }, 100);
+    }
+  };
+
+  const handleLogout = async () => {
+    try {
+      await apiCall(API_ENDPOINTS.HR_LOGOUT, {
+        method: 'POST',
+        token,
+      });
+      
+      logout();
+      toast({
+        title: "Logged Out",
+        description: "You have been successfully logged out.",
+      });
+      navigate('/');
+    } catch (error) {
+      console.error('Logout error:', error);
+      // Still logout locally even if API call fails
+      logout();
+      navigate('/');
     }
   };
 
@@ -33,18 +58,56 @@ const Header: React.FC = () => {
             Skill<span className="text-skillsync-purple">Sync</span>
           </span>
         </div>
+        
         <nav className="flex items-center gap-4">
-          <Button 
-            variant="outline" 
-            className="flex items-center gap-2 border-skillsync-purple text-skillsync-purple hover:bg-skillsync-purple/10"
-            onClick={() => navigate('/upload-resume')}
-          >
-            <Upload size={18} />
-            <span className="hidden sm:inline">Upload Resume</span>
-          </Button>
-          <Button onClick={handleRequestDemo} className="bg-skillsync-purple hover:bg-skillsync-purple/90 text-white">
-            Request Demo
-          </Button>
+          {isAuthenticated ? (
+            <>
+              <Button 
+                variant="outline" 
+                className="flex items-center gap-2"
+                onClick={() => navigate('/dashboard')}
+              >
+                <BarChart3 size={18} />
+                <span className="hidden sm:inline">Dashboard</span>
+              </Button>
+              <Button 
+                variant="outline" 
+                className="flex items-center gap-2 border-skillsync-purple text-skillsync-purple hover:bg-skillsync-purple/10"
+                onClick={() => navigate('/upload-resume')}
+              >
+                <Upload size={18} />
+                <span className="hidden sm:inline">Upload Resume</span>
+              </Button>
+              <Button 
+                variant="outline"
+                className="flex items-center gap-2"
+                onClick={handleLogout}
+              >
+                <LogOut size={18} />
+                <span className="hidden sm:inline">Logout</span>
+              </Button>
+            </>
+          ) : (
+            <>
+              <Button 
+                variant="outline" 
+                className="flex items-center gap-2 border-skillsync-purple text-skillsync-purple hover:bg-skillsync-purple/10"
+                onClick={() => navigate('/upload-resume')}
+              >
+                <Upload size={18} />
+                <span className="hidden sm:inline">Upload Resume</span>
+              </Button>
+              {location.pathname === '/' ? (
+                <Button onClick={handleRequestDemo} className="bg-skillsync-purple hover:bg-skillsync-purple/90 text-white">
+                  Request Demo
+                </Button>
+              ) : (
+                <Button onClick={() => navigate('/login')} className="bg-skillsync-purple hover:bg-skillsync-purple/90 text-white">
+                  Login
+                </Button>
+              )}
+            </>
+          )}
         </nav>
       </div>
     </header>

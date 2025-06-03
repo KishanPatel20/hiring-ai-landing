@@ -1,22 +1,18 @@
+
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
 import { useToast } from "@/hooks/use-toast";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { useForm } from "react-hook-form";
 
-// Base API URL - in a production app, this would come from environment variables
-const API_BASE_URL = 'https://api.skillsync.dev';
-
 const DemoForm: React.FC = () => {
   const { toast } = useToast();
   const navigate = useNavigate();
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [resumeFile, setResumeFile] = useState<File | null>(null);
   
   const form = useForm({
     defaultValues: {
@@ -25,30 +21,19 @@ const DemoForm: React.FC = () => {
       company: '',
       role: '',
       companySize: '',
-      challenge: '',
-      jobDescription: ''
+      challenge: ''
     }
   });
-
-  const handleResumeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files && e.target.files[0]) {
-      setResumeFile(e.target.files[0]);
-    }
-  };
 
   const handleSubmit = async (data: any) => {
     setIsSubmitting(true);
     
     try {
-      // Example of how a real implementation would upload data
-      // In this demo version, we'll simulate success and navigate to the demo page
-      
       toast({
         title: "Demo Request Received!",
         description: "Redirecting you to our interactive demo.",
       });
       
-      // Wait a moment before redirecting to allow the toast to be seen
       setTimeout(() => {
         navigate('/demo', { state: { fromSubmission: true } });
       }, 1500);
@@ -178,37 +163,6 @@ const DemoForm: React.FC = () => {
                     </FormItem>
                   )}
                 />
-
-                <FormField
-                  control={form.control}
-                  name="jobDescription"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Sample Job Description (Optional)</FormLabel>
-                      <FormControl>
-                        <Textarea 
-                          placeholder="Paste a sample job description to see how SkillSync can help..."
-                          rows={4}
-                          {...field}
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
-                <div className="space-y-2">
-                  <Label htmlFor="resume">Upload Sample Resume (Optional)</Label>
-                  <Input 
-                    id="resume"
-                    type="file"
-                    accept=".pdf,.doc,.docx"
-                    onChange={handleResumeChange}
-                  />
-                  <p className="text-xs text-skillsync-darkgray/60">
-                    Upload a sample resume to see how SkillSync processes candidate information.
-                  </p>
-                </div>
                 
                 <Button 
                   type="submit" 
