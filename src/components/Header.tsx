@@ -1,8 +1,8 @@
 
 import React from 'react';
 import { Button } from '@/components/ui/button';
-import { useNavigate, useLocation } from 'react-router-dom';
-import { Upload, LogOut, BarChart3 } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
+import { LogOut, BarChart3 } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/hooks/use-toast';
 import { apiCall } from '@/services/apiService';
@@ -10,24 +10,8 @@ import { API_ENDPOINTS } from '@/config/api';
 
 const Header: React.FC = () => {
   const navigate = useNavigate();
-  const location = useLocation();
   const { isAuthenticated, logout, token } = useAuth();
   const { toast } = useToast();
-  
-  const scrollToForm = () => {
-    document.getElementById('demo-request')?.scrollIntoView({ behavior: 'smooth' });
-  };
-  
-  const handleRequestDemo = () => {
-    if (window.location.pathname === '/') {
-      scrollToForm();
-    } else {
-      navigate('/');
-      setTimeout(() => {
-        document.getElementById('demo-request')?.scrollIntoView({ behavior: 'smooth' });
-      }, 100);
-    }
-  };
 
   const handleLogout = async () => {
     try {
@@ -71,14 +55,6 @@ const Header: React.FC = () => {
                 <span className="hidden sm:inline">Dashboard</span>
               </Button>
               <Button 
-                variant="outline" 
-                className="flex items-center gap-2 border-skillsync-purple text-skillsync-purple hover:bg-skillsync-purple/10"
-                onClick={() => navigate('/upload-resume')}
-              >
-                <Upload size={18} />
-                <span className="hidden sm:inline">Upload Resume</span>
-              </Button>
-              <Button 
                 variant="outline"
                 className="flex items-center gap-2"
                 onClick={handleLogout}
@@ -91,21 +67,17 @@ const Header: React.FC = () => {
             <>
               <Button 
                 variant="outline" 
-                className="flex items-center gap-2 border-skillsync-purple text-skillsync-purple hover:bg-skillsync-purple/10"
-                onClick={() => navigate('/upload-resume')}
+                className="border-skillsync-purple text-skillsync-purple hover:bg-skillsync-purple/10"
+                onClick={() => navigate('/login')}
               >
-                <Upload size={18} />
-                <span className="hidden sm:inline">Upload Resume</span>
+                Sign In
               </Button>
-              {location.pathname === '/' ? (
-                <Button onClick={handleRequestDemo} className="bg-skillsync-purple hover:bg-skillsync-purple/90 text-white">
-                  Request Demo
-                </Button>
-              ) : (
-                <Button onClick={() => navigate('/login')} className="bg-skillsync-purple hover:bg-skillsync-purple/90 text-white">
-                  Login
-                </Button>
-              )}
+              <Button 
+                className="bg-skillsync-purple hover:bg-skillsync-purple/90 text-white"
+                onClick={() => navigate('/register')}
+              >
+                Sign Up
+              </Button>
             </>
           )}
         </nav>
