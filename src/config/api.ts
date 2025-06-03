@@ -13,6 +13,7 @@ export const API_ENDPOINTS = {
   CANDIDATE_DETAIL: (id: number) => `/skillsync/candidates/${id}/`,
   CANDIDATE_RESUME: (id: number) => `/skillsync/candidates/${id}/resume/`,
   CANDIDATE_SEARCH: '/skillsync/candidates/search/',
+  CANDIDATE_ANALYSIS: (id: number) => `/skillsync/candidates/${id}/analyze/`,
   
   // Resume Upload
   RESUME_UPLOAD: '/skillsync/resume/upload/',
