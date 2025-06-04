@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -14,6 +13,7 @@ import LinkedInProfileCard from '@/components/LinkedInProfileCard';
 import CandidateReview from '@/components/CandidateReview';
 import CandidateAnalysis from '@/components/CandidateAnalysis';
 import LinkedInLoadingScreen from '@/components/LinkedInLoadingScreen';
+import AuthenticatedLayout from '@/components/AuthenticatedLayout';
 
 interface LinkedInProfile {
   name: string;
@@ -45,9 +45,14 @@ const Search: React.FC = () => {
 
   React.useEffect(() => {
     if (!isAuthenticated) {
-      navigate('/login');
+      navigate('/login', { replace: true });
     }
   }, [isAuthenticated, navigate]);
+
+  // Show loading screen if not authenticated yet
+  if (!isAuthenticated) {
+    return null;
+  }
 
   const handleSearch = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -190,12 +195,16 @@ const Search: React.FC = () => {
   };
 
   if (scraping) {
-    return <LinkedInLoadingScreen />;
+    return (
+      <AuthenticatedLayout>
+        <LinkedInLoadingScreen />
+      </AuthenticatedLayout>
+    );
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <div className="container mx-auto px-4 py-8">
+    <AuthenticatedLayout>
+      <div className="p-6">
         {view === 'search' && (
           <>
             {/* Header */}
@@ -353,7 +362,7 @@ const Search: React.FC = () => {
           </div>
         )}
       </div>
-    </div>
+    </AuthenticatedLayout>
   );
 };
 

@@ -16,7 +16,14 @@ const Login: React.FC = () => {
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
   const { toast } = useToast();
-  const { login } = useAuth();
+  const { login, isAuthenticated } = useAuth();
+
+  // Redirect if already authenticated
+  React.useEffect(() => {
+    if (isAuthenticated) {
+      navigate('/search');
+    }
+  }, [isAuthenticated, navigate]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -28,6 +35,7 @@ const Login: React.FC = () => {
         body: { username, password },
       });
 
+      // Call login to update auth state
       login(response.token, response.user);
       
       toast({
@@ -35,7 +43,10 @@ const Login: React.FC = () => {
         description: "Welcome back!",
       });
       
-      navigate('/search');
+      // Navigate after a small delay to ensure auth state is updated
+      setTimeout(() => {
+        navigate('/search', { replace: true });
+      }, 100);
     } catch (error) {
       console.error('Login error:', error);
       toast({
