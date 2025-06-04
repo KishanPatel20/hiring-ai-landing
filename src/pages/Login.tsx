@@ -35,7 +35,7 @@ const Login: React.FC = () => {
         description: "Welcome back!",
       });
       
-      navigate('/dashboard');
+      navigate('/search');
     } catch (error) {
       console.error('Login error:', error);
       toast({

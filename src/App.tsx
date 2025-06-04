@@ -8,6 +8,7 @@ import { AuthProvider } from "@/contexts/AuthContext";
 import Index from "./pages/Index";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
+import Search from "./pages/Search";
 import Dashboard from "./pages/Dashboard";
 import Candidates from "./pages/Candidates";
 import LinkedInSearch from "./pages/LinkedInSearch";
